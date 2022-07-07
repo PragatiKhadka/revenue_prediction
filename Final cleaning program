@@ -40,7 +40,7 @@ for each_df in all_df1:
 reshape_df = pd.DataFrame()
 full_df = pd.DataFrame()
 years = ['2015', '2016','2017', '2018','2019']
-Features = ['ebit', 'ebitda' , 'profit_and_loss_after_taxes' , 'total_assets' , 'total_liabilities' , 'operating_profit_and_loss' , 'financial_profit_and_loss' , 'staff_count' , 'net_added_value' , 'staff_costs']
+Features = ['ebit', 'total_liabilities' , 'net_added_value' , 'staff_costs']
 
 for y in years:
 
