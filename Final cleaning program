@@ -1,0 +1,69 @@
+import pandas as pd
+import json
+import numpy as np
+import seaborn as sn
+import matplotlib.pyplot as plt
+import warnings
+
+# remove warnings
+
+warnings.filterwarnings("ignore")
+
+with open(r'/Users/Jorg/Accounton data/accounton_data.json','r') as json_file:
+    raw_data = json.load(json_file)
+
+df = pd.json_normalize(raw_data)
+
+df1 = df[df['ebit.2019'].notna()]
+
+# splitting the data frame based on 'company_category'
+df_Large = df1.loc[df1['company_category']== "Large",:]
+df_Medium = df1.loc[df1['company_category']== 'Medium sized',:]
+df_Small = df1.loc[df1['company_category']== 'Small',:]
+df_Very_large= df1.loc[df1['company_category']== 'Very large',:]
+
+years = ['2015', '2016','2017','2018','2019','2020']
+Features = ['ebit', 'ebitda' , 'profit_and_loss_after_taxes' , 'total_assets' , 'total_liabilities' , 'operating_profit_and_loss' , 'financial_profit_and_loss' , 'staff_count', 'revenue' , 'net_added_value' , 'staff_costs']
+for feature in Features:
+    for year in years:
+        df_Large[f'{feature}.{year}'][df_Large[f'{feature}.{year}'].isna()] = df_Large[f'{feature}.{year}'].mean()
+        df_Medium[f'{feature}.{year}'][df_Medium[f'{feature}.{year}'].isna()] = df_Medium[f'{feature}.{year}'].mean()
+        df_Small[f'{feature}.{year}'][df_Small[f'{feature}.{year}'].isna()] = df_Small[f'{feature}.{year}'].mean()
+        df_Very_large[f'{feature}.{year}'][df_Very_large[f'{feature}.{year}'].isna()] = df_Very_large[f'{feature}.{year}'].mean()
+
+# concatenate the subsets to get the clean dataframe
+Total_clean_df = pd.DataFrame()
+all_df1 = [df_Large,df_Medium,df_Small, df_Very_large ]
+for each_df in all_df1:
+    Total_clean_df = pd.concat([Total_clean_df,each_df])
+
+reshape_df = pd.DataFrame()
+full_df = pd.DataFrame()
+years = ['2015', '2016','2017', '2018','2019']
+Features = ['ebit', 'ebitda' , 'profit_and_loss_after_taxes' , 'total_assets' , 'total_liabilities' , 'operating_profit_and_loss' , 'financial_profit_and_loss' , 'staff_count' , 'net_added_value' , 'staff_costs']
+
+for y in years:
+
+                reshape_df['company_name'] = Total_clean_df['company_name']
+                reshape_df['company_category'] = Total_clean_df['company_category']
+                reshape_df['province'] = Total_clean_df['province']
+                reshape_df['Year'] = y
+                
+                for f in Features:
+                    reshape_df[f"{f}"] = Total_clean_df[f"{f}.{y}"]
+                reshape_df[f"current_revenue"] = Total_clean_df[f"revenue.{y}"]
+                reshape_df[f"next_year_revenue"] = Total_clean_df[f"revenue.{str(int(y)+1)}"]
+                
+                full_df = pd.concat([full_df,reshape_df], axis=0)
+
+full_df = full_df.sort_values(by=['company_name','Year'])
+
+# Using the categorical columns 
+
+df_category = pd.get_dummies(full_df['company_category'])
+full_df = pd.concat([full_df, df_category], axis=1)
+df_province = pd.get_dummies(full_df['province'])
+training_df = pd.concat([full_df, df_province], axis=1)
+training_df = training_df.drop(columns=['company_category', 'province'])
+
+training_df.to_csv('/Users/Jorg/Accounton data/clean_accounton.csv', index=False)
