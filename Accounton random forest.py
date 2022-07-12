@@ -18,14 +18,14 @@ y = df1['next_year_revenue']
 
 from sklearn.model_selection import train_test_split
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state = 2)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state = 42)
 
 from sklearn  import linear_model 
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 from math import sqrt
 
 # Train the model
-model = RandomForestRegressor(n_estimators = 10, random_state = 0)
+model = RandomForestRegressor(n_estimators = 10, random_state = 42)
 model.fit(X_train, y_train)
 y_hat = model.predict(X_test)
 

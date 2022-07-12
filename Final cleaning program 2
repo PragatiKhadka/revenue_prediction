@@ -35,8 +35,8 @@ data = pd.json_normalize(raw_data)
 data['creation_date'] = pd.to_datetime(data['creation_date']).dt.to_period('Y')
 
 # Save the rows tha have values .. deleting the rows that have all NAN values
-df1 = data[data['ebit.2019'].notna()]
-
+#df1 = data[data['ebit.2019'].notna()]
+df1 = data
 # Split the Nace_code to git the first 2 digits
 df1['Nace_code'] = df1['nace_code'].str[0:2]
 
@@ -53,10 +53,7 @@ Features = ['ebit', 'ebitda' , 'profit_and_loss_after_taxes' , 'total_assets' , 
  
 # fill the NAN values in each feature based on the median values of the same category in same provine and activites
 
-df_after_drop = df1.dropna(subset=['revenue.2020', 'revenue.2019',
-       'revenue.2018', 'revenue.2017', 'revenue.2016', 'revenue.2015'])
-print(df_after_drop.shape)
-
+"""
 for each_category in company_cat:
     for each_province in province:
         median_df =df1.groupby(['company_category', 'province', 'Nace_code']).median()
@@ -71,7 +68,7 @@ for each_category in company_cat:
                             df1[f'{feature}.{year}'].fillna(median, inplace=True)
                             if feature == 'staff_costs':
                                 df1.loc[df1[f'{feature}.{year}']==0.0,f'{feature}.{year}']=median
-
+"""
 # making the reshape 
 # create a dataframe to save and arrange the data 
 reshape_df = pd.DataFrame()
@@ -99,11 +96,14 @@ for y in years:
                 reshape_df[f"next_year_revenue"] = df1[f"revenue.{str(int(y)+1)}"]
                 full_df = pd.concat([full_df,reshape_df], axis=0)
 
-#full_df.isna().sum()
-
 full_df = full_df.sort_values(['vat_number','Year'])
 
 full_df = full_df[['company_category', 'province', 'ebit', 'total_liabilities', 'net_added_value', 'staff_costs', 'current_revenue', 'next_year_revenue']]
+
+print(full_df["current_revenue"].isnull().sum())
+full_df = full_df.dropna(subset=["current_revenue"])
+print(full_df.shape)
+
 
 # Converting the categorical data of (Company_category and province) into numerical 
 df_category = pd.get_dummies(full_df['company_category'])
@@ -111,7 +111,6 @@ df_new = pd.concat([full_df, df_category], axis=1)
 
 df_province = pd.get_dummies(full_df['province'])
 df_new = pd.concat([df_new, df_province], axis=1)
-df_new
 
 # .corr() is used to find the pairwise correlation of all columns in the dataframe. Any null values are automatically excluded
 corr = full_df.corr()

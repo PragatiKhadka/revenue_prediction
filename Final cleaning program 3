@@ -1,0 +1,114 @@
+# Packages / libraries
+import numpy as np 
+import pandas as pd
+import json
+import datetime as dt
+
+# To change scientific numbers to float
+np.set_printoptions(formatter={'float_kind':'{:f}'.format})
+
+# view all the dataframe
+pd.set_option('display.max_columns', None)
+
+# remove warnings
+import warnings
+warnings.filterwarnings("ignore")
+
+# Loading the data
+
+with open(r"/Users/Jorg/Accounton data/accounton_data.json",'r') as f:
+    raw_data = json.loads(f.read())
+
+# Flatten data
+data = pd.json_normalize(raw_data)
+
+# convert the CreationDate column into DateTime type Delet the companies the created after 2019 because it had many NaN values
+data['creation_date'] = pd.to_datetime(data['creation_date']).dt.to_period('Y')
+
+# Save the rows tha have values .. deleting the rows that have all NAN values
+df1 = data[data['ebit.2019'].notna()]
+
+# Split the Nace_code to git the first 2 digits
+df1['Nace_code'] = df1['nace_code'].str[0:2]
+
+# making the reshape 
+# create a dataframe to save and arrange the data 
+reshape_df = pd.DataFrame()
+# creat the final complete data frame
+full_df = pd.DataFrame()
+# determine the years and the features
+years = ['2015', '2016','2017', '2018','2019']
+Features = ['ebit', 'ebitda' , 'profit_and_loss_after_taxes' , 'total_assets' , 'total_liabilities' ,
+    'operating_profit_and_loss' , 'financial_profit_and_loss' ,
+    'staff_count' , 'net_added_value' , 'staff_costs']
+# Loop to access the data from the original dataframe and assigh it in the new dataframe
+for y in years:
+                
+                # reshape_df['vat_number'] = df1['vat_number']
+                reshape_df['vat_number']= df1['vat_number']
+                reshape_df['company_category'] = df1['company_category']
+                reshape_df['province'] = df1['province']
+                reshape_df['nace_code'] = df1['nace_code']
+                reshape_df['Nace_code'] = df1['Nace_code']
+                reshape_df['Year'] = y
+                
+                for f in Features:
+                    reshape_df[f"{f}"] = df1[f"{f}.{y}"]
+                reshape_df[f"current_revenue"] = df1[f"revenue.{y}"]
+                reshape_df[f"next_year_revenue"] = df1[f"revenue.{str(int(y)+1)}"]
+                full_df = pd.concat([full_df,reshape_df], axis=0)
+
+full_df_after_drop = full_df.dropna(subset=['current_revenue'])
+
+full_df_after_drop = full_df_after_drop.dropna(subset=['next_year_revenue'])
+
+company_cat = full_df_after_drop['company_category'].unique()
+
+province = full_df_after_drop['province'].unique()
+
+years = full_df_after_drop['Year'].unique()
+
+nace_code_list = list(full_df_after_drop['Nace_code'])
+Features = ['ebit', 'total_liabilities' , 'net_added_value' , 'staff_costs']
+
+# fill the NAN values in each feature based on the median values of the same category in same provine and activites
+median_df =full_df_after_drop.groupby(['company_category', 'province', 'Nace_code']).median()
+for each_category in company_cat:
+    for each_province in province:
+        i = median_df.loc[each_category, each_province]
+        nace_list = i.index
+        nace_list = list(nace_list)
+        for nc in nace_list:
+            for feature in Features:
+                median = median_df.loc[(each_category, each_province, nc),f'{feature}']
+                full_df_after_drop[f'{feature}'].fillna(median, inplace=True)
+
+# staff cost according to the staff_count
+
+median_df =full_df_after_drop.groupby(['company_category', 'province', 'Nace_code']).median()
+
+for each_category in company_cat:
+    for each_province in province:
+        i = median_df.loc[each_category, each_province]
+        nace_list = i.index
+        nace_list = list(nace_list)
+        for nc in nace_list:
+            median = median_df.loc[(each_category, each_province, nc), 'staff_costs']
+            full_df_after_drop.loc[(full_df_after_drop['company_category'] == each_category) &
+                                   (full_df_after_drop['province'] == each_province) &
+                                   (full_df_after_drop['Nace_code'] == nc) &
+                                   (full_df_after_drop['staff_count'].isna()) & 
+                                   (full_df_after_drop['staff_costs']==0.0), 'staff_costs'] = median
+        
+full_df_after_drop = full_df_after_drop[['company_category', 'province', 'ebit', 'total_liabilities', 'net_added_value', 'staff_costs', 'current_revenue', 'next_year_revenue']]
+
+# Converting the categorical data of (Company_category and province) into numerical 
+df_category = pd.get_dummies(full_df_after_drop['company_category'])
+df_cat = pd.concat([full_df_after_drop, df_category], axis=1)
+
+df_province = pd.get_dummies(full_df_after_drop['province'])
+df_training = pd.concat([df_cat, df_province], axis=1)
+
+df_training= df_training.drop(columns=['province'])
+
+df_training.to_csv('/Users/Jorg/Accounton data/clean_accounton.csv', index=False)

@@ -15,12 +15,10 @@ X = df1[['ebit', 'total_liabilities', 'net_added_value',
        'Small', 'Very large', 'Antwerp', 'East-Flanders', 'Limburg', 
        'Vlaams Brabant', 'West-Flanders']]
 y = df1[['next_year_revenue']]
-print(X.shape)
-
 
 from sklearn.model_selection import train_test_split
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=2)
 
 from sklearn  import linear_model 
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
@@ -37,8 +35,6 @@ print('Intercept:', model.intercept_)
 print('Coefficient of determination (R^2): %.3f' % r2_score(y_test, y_hat))
 print('Mean squared error (MSE): %.3f'% mean_squared_error(y_test, y_hat))
 print('Root mean squared error (RMSE) : %.3f'% sqrt(mean_squared_error(y_test, y_hat)) )
-
-y_test = y_test["prediction"]=y_hat
 
 """
 from sklearn.preprocessing import PolynomialFeatures  

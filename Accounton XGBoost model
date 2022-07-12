@@ -1,11 +1,9 @@
-import joblib
 import pandas as pd
 import numpy as np
 from pandas import json_normalize
 import seaborn as sns
 import matplotlib.pyplot as plt
 import xgboost as xgb
-import pickle
 from xgboost import plot_tree
 import matplotlib.pyplot as plt
 from sklearn.model_selection import RepeatedKFold
@@ -20,10 +18,11 @@ df1 = dfs[2]
 
 
 X = df1[['ebit', 'total_liabilities', 'net_added_value', 
-       'current_revenue', 'Large', 'Medium sized', 
+       'staff_costs', 'current_revenue', 'Large', 'Medium sized', 
        'Small', 'Very large', 'Antwerp', 'East-Flanders', 'Limburg', 
        'Vlaams Brabant', 'West-Flanders']]
 y = df1[['next_year_revenue']]
+
 
 from sklearn.model_selection import train_test_split
 
@@ -52,6 +51,6 @@ scores2 = cross_val_score(model, X, y, scoring='r2', cv=cv, n_jobs=-1)
 # force scores to be positive
 scores1 = np.absolute(scores1)
 scores2 = np.absolute(scores2)
-print('Root mean squared error (RMSE): %.3f (%.3f)' % (scores1.mean(), scores1.std()) )
 print('Coefficient of determination (R^2): %.3f (%.3f)' % (scores2.mean(), scores2.std()) )
+print('Root mean squared error (RMSE): %.3f (%.3f)' % (scores1.mean(), scores1.std()) )
 
