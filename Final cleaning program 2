@@ -53,6 +53,10 @@ Features = ['ebit', 'ebitda' , 'profit_and_loss_after_taxes' , 'total_assets' , 
  
 # fill the NAN values in each feature based on the median values of the same category in same provine and activites
 
+df_after_drop = df1.dropna(subset=['revenue.2020', 'revenue.2019',
+       'revenue.2018', 'revenue.2017', 'revenue.2016', 'revenue.2015'])
+print(df_after_drop.shape)
+
 for each_category in company_cat:
     for each_province in province:
         median_df =df1.groupby(['company_category', 'province', 'Nace_code']).median()
@@ -101,8 +105,6 @@ full_df = full_df.sort_values(['vat_number','Year'])
 
 full_df = full_df[['company_category', 'province', 'ebit', 'total_liabilities', 'net_added_value', 'staff_costs', 'current_revenue', 'next_year_revenue']]
 
-dfs = [x for _, x in full_df.groupby('company_category')]
-dfs[0]
 # Converting the categorical data of (Company_category and province) into numerical 
 df_category = pd.get_dummies(full_df['company_category'])
 df_new = pd.concat([full_df, df_category], axis=1)

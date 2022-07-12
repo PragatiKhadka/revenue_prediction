@@ -11,7 +11,7 @@ f = open('/Users/Jorg/Accounton data/clean_accounton.csv')
 df1 = pd.read_csv(f)
 
 X = df1[['ebit', 'total_liabilities', 'net_added_value', 
-       'current_revenue', 'Large', 'Medium sized', 
+       'staff_costs', 'current_revenue', 'Large', 'Medium sized', 
        'Small', 'Very large', 'Antwerp', 'East-Flanders', 'Limburg', 
        'Vlaams Brabant', 'West-Flanders']]
 y = df1['next_year_revenue']
@@ -25,7 +25,7 @@ from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 from math import sqrt
 
 # Train the model
-model = RandomForestRegressor(n_estimators = 10, random_state = 42)
+model = RandomForestRegressor(n_estimators = 10, random_state = 0)
 model.fit(X_train, y_train)
 y_hat = model.predict(X_test)
 
