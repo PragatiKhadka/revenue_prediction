@@ -47,4 +47,3 @@ scores1 = np.absolute(scores1)
 scores2 = np.absolute(scores2)
 print('Coefficient of determination (R^2): %.3f (%.3f)' % (scores2.mean(), scores2.std()) )
 print('Root mean squared error (RMSE): %.3f (%.3f)' % (scores1.mean(), scores1.std()) )
-
