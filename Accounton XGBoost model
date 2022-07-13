@@ -9,10 +9,9 @@ from sklearn.model_selection import train_test_split
 from math import sqrt
 
 # opening the datafile
-f = open('/Users/Jorg/Accounton data/clean_accounton.csv')
-
-# read the csv file  
-df1 = pd.read_csv(f)
+with open('/Users/Jorg/Accounton data/clean_accounton.csv') as f:
+    # read the csv file
+    df1 = pd.read_csv(f)
 
 # choosing the features for X
 X = df1[['ebit', 'total_liabilities', 'net_added_value', 
