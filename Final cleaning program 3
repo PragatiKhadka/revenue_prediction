@@ -109,6 +109,6 @@ df_cat = pd.concat([full_df_after_drop, df_category], axis=1)
 df_province = pd.get_dummies(full_df_after_drop['province'])
 df_training = pd.concat([df_cat, df_province], axis=1)
 
-df_training= df_training.drop(columns=['province'])
+df_training= df_training.drop(columns=['company_category', 'province'])
 
 df_training.to_csv('/Users/Jorg/Accounton data/clean_accounton.csv', index=False)

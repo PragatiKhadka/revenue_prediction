@@ -36,20 +36,3 @@ print('Coefficient of determination (R^2): %.3f' % r2_score(y_test, y_hat))
 print('Mean squared error (MSE): %.3f'% mean_squared_error(y_test, y_hat))
 print('Root mean squared error (RMSE) : %.3f'% sqrt(mean_squared_error(y_test, y_hat)) )
 
-"""
-from sklearn.preprocessing import PolynomialFeatures  
-poly_regs= PolynomialFeatures(degree= 2)  
-x_poly= poly_regs.fit_transform(X)  
-lin_reg_2 =linear_model.LinearRegression()  
-lin_reg_2.fit(x_poly, y)  
-
-
-plt.plot(X,y,color="blue")  
-plt.plot(X, lin_reg_2.predict(poly_regs.fit_transform(X)), color="red")  
-plt.title("Bluff detection model(Polynomial Regression)")  
-plt.xlabel("Features")  
-plt.ylabel("Revenue")  
-#plt.show()  
-
-plt.show()
-"""
