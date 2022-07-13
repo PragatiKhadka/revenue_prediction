@@ -1,3 +1,5 @@
 accountonvirtual
 *.html
 data
+.vscode
+.ipynb_checkpoints

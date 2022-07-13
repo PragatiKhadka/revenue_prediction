@@ -11,16 +11,16 @@ from math import sqrt
 # opening the datafile
 with open('/Users/Jorg/Accounton data/clean_accounton.csv') as f:
     # read the csv file
-    df1 = pd.read_csv(f)
+    df = pd.read_csv(f)
 
-# choosing the features for X
-X = df1[['ebit', 'total_liabilities', 'net_added_value', 
+# choosing the features (X)
+X = df[['ebit', 'total_liabilities', 'net_added_value', 
        'staff_costs', 'current_revenue', 'Large', 'Medium sized', 
        'Small', 'Very large', 'Antwerp', 'East-Flanders', 'Limburg', 
        'Vlaams Brabant', 'West-Flanders']]
 
-# choosing the features for y
-y = df1[['next_year_revenue']]
+# choosing the target (y)
+y = df[['next_year_revenue']]
 
 # splitting X and y
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=2)
